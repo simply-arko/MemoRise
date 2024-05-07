@@ -43,6 +43,19 @@ export default function DialogInput() {
                     </div>
                     <div className="grid grid-cols-6 items-center gap-4">
                         <Label
+                            htmlFor="name"
+                            className="text-right text-lg font-semibold"
+                        >
+                            Name:
+                        </Label>
+                        <Input
+                            id="name"
+                            placeholder="Title"
+                            className="col-span-5"
+                        />
+                    </div>
+                    <div className="grid grid-cols-6 items-center gap-4">
+                        <Label
                             htmlFor="tags"
                             className="text-right text-lg font-semibold"
                         >
@@ -62,6 +75,7 @@ export default function DialogInput() {
                             Note:
                         </Label>
                         <Textarea
+                            placeholder="Tonight I'm gonna bang Anmanda!"
                             id="content"
                             className="col-span-5 min-h-[100px] dark:bg-slate-950"
                         />
