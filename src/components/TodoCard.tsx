@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useForm, SubmitHandler } from "react-hook-form";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,19 +15,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AvatartImagge from "../assets/ShortAvatar.png";
 import { Label } from "@/components/ui/label";
+import { EditFormInput, EditTodoAction, Todo } from "@/interface";
+import { useDispatch } from "react-redux";
+import { removeTodo, editTodo } from "@/lib/features/todos/todoSlice";
+import { useState } from "react";
 
-export default function TodoCard() {
+export default function TodoCard({ id, title, tags, text, user }: Todo) {
+    const { register, handleSubmit } = useForm<EditFormInput>();
+    const [editEnabled, setEditEnabled] = useState(false);
+    const dispatch = useDispatch();
+
+    const editSubmit: SubmitHandler<EditFormInput> = (formData) => {
+        const newData: EditTodoAction = { id: id!, text: formData.text };
+        dispatch(editTodo(newData));
+        setEditEnabled(false);
+    };
+
     return (
         <div className="w-full border-[#080808] border-2 px-6 py-4 rounded-xl min-h-[200px] bg-[#141414]">
             <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-x-2">
-                    <h1 className="text-xl">Basic Details</h1>
-                    <Badge
-                        variant={"outline"}
-                        className="bg-[#1A241F] dark:text-green-300 self-center"
-                    >
-                        ON-CALL
-                    </Badge>
+                    <h1 className="text-xl">{title}</h1>
+                    {tags?.map((tag, index) => (
+                        <Badge
+                            variant={"outline"}
+                            className="bg-[#1A241F] dark:text-green-300 self-center"
+                            key={index}
+                        >
+                            {tag}
+                        </Badge>
+                    ))}
                 </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -42,6 +60,7 @@ export default function TodoCard() {
                             <DropdownMenuRadioItem
                                 value="edit"
                                 className="opacity-70"
+                                onClick={() => setEditEnabled(true)}
                             >
                                 <FaRegEdit className="mr-2 text-lg " />
                                 Edit
@@ -49,6 +68,7 @@ export default function TodoCard() {
                             <DropdownMenuRadioItem
                                 value="delete"
                                 className="text-red-500"
+                                onClick={() => dispatch(removeTodo(id!))}
                             >
                                 <RiDeleteBin6Line className="mr-2 text-lg " />
                                 Delete
@@ -57,22 +77,33 @@ export default function TodoCard() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <Textarea
-                value={
-                    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis nam atque inventore molestias. Velit ipsa eius facilis placeat sunt quo!"
-                }
-                disabled={true}
-                className="mt-4 bg-white"
-            />
-            <div className="flex flex-row gap-4 mt-4">
-                <Avatar id="avatar">
-                    <AvatarImage src={AvatartImagge} />
-                    <AvatarFallback>AR</AvatarFallback>
-                </Avatar>
-                <Label htmlFor="avatar" className="self-center">
-                    Arkojeet Bera
-                </Label>
-            </div>
+            <form onSubmit={handleSubmit(editSubmit)}>
+                <Textarea
+                    defaultValue={text}
+                    disabled={!editEnabled}
+                    className="mt-4 bg-white"
+                    {...register("text", { required: false })}
+                />
+                <div className="flex flex-row justify-between">
+                    <div className="flex flex-row gap-4 mt-4">
+                        <Avatar id="avatar">
+                            <AvatarImage src={AvatartImagge} />
+                            <AvatarFallback>AR</AvatarFallback>
+                        </Avatar>
+                        <Label htmlFor="avatar" className="self-center">
+                            {user}
+                        </Label>
+                    </div>
+                    <Button
+                        className={`self-end ${
+                            editEnabled ? `block` : `hidden`
+                        }`}
+                        type="submit"
+                    >
+                        Done
+                    </Button>
+                </div>
+            </form>
         </div>
     );
 }
